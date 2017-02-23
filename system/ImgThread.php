@@ -4,17 +4,17 @@ require_once( dirname(__FILE__) . '/../library/LruCache.php' );
 require_once( dirname(__FILE__) . '/../library/GetImage.php' );
 
 class ImgThread extends Thread {
-	public function __construct($key, $name)
+	public function __construct( $imgArray )
 	{
-		$this->key = $key;
-		$this->name = $name;
+		$this->imgArray = $imgArray;
 	}
 	
 	public function run () {
-		$lru = new LruCache(1);
-		$lru->put($this->key, $this->name);
-		$this->img = $lru->get( $this->key );
-		
+		$lru = new LruCache( 11 );
+		foreach ( $this->imgArray as $key => $name ) {
+			$lru->put($key, $name);
+		}
+		$this->img = $lru->get( 0 );
 		sleep(5);
 	}
 }
@@ -25,17 +25,13 @@ $imgArray = $objImg->getImgData();
 
 $start = microtime(true);
 
-// cache put
-foreach ( $imgArray as $key => $name ) {
-	$imgThread[$key] = new ImgThread($key, $name);
-	$imgThread[$key]->start();
-}
+$imgThread = new ImgThread( $imgArray );
+$imgThread->start();
 
 // cache get
-foreach ( $imgArray as $key => $name ) {
-	$imgThread[$key]->join();
-	$newImageArray[] = $imgThread[$key]->img;
-}
+$imgThread->join();
+$newImageArray = $imgThread->img;
+
 
 var_dump(microtime(true) - $start);
 var_dump($newImageArray);exit;
