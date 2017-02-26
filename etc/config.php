@@ -3,7 +3,7 @@
 
 function getConfig() {
 	$config = array(
-		'cacheNum' => 11,
+		'cacheNum' => 10,
 		'imgType'  => array (
 			1 => 'image/jpeg',
 			2 => 'image/png',

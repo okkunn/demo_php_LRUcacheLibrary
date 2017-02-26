@@ -17,7 +17,7 @@ class ImgThread extends Thread {
 			$lru->put($key, $name);
 		}
 		$this->img = $lru->get( 0 );
-		sleep(5);
+		sleep(10);
 	}
 }
 
@@ -27,17 +27,22 @@ $imgArray = $objImg->getImgData();
 $config = getConfig();
 $num = $config['cacheNum'];
 
+
+foreach ( $imgArray as $key => $value ) {
+	$imgThread[$key] = new ImgThread( $value, $num );
+	// cache put
+	$imgThread[$key]->start();
+}
 $start = microtime(true);
 
-$imgThread = new ImgThread( $imgArray, $num );
-$imgThread->start();
-
-// cache get
-$imgThread->join();
-$newImageArray = $imgThread->img;
-
+foreach ( $imgArray as $key => $value ) {
+	// cache get
+	$imgThread[$key]->join();
+	$newImage = $imgThread[$key]->img;
+	var_dump($newImage);
+}
 
 var_dump(microtime(true) - $start);
-var_dump($newImageArray);exit;
+exit;
 
 
